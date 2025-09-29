@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Ficha - Shinigamis & Hollows</title>
+<title>Ficha Avançada - Shinigamis & Hollows</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
   body { font-family: Arial, sans-serif; background: #111; color: #eee; margin:0; padding:0; text-align:center;}
@@ -12,8 +12,10 @@
   label { flex:1; text-align:left; }
   input, select, textarea { flex:2; padding:6px; border:none; border-radius:4px; background:#333; color:#fff; }
   .atributos { display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; margin-top:20px; }
-  .atributo { background:#2a2a2a; padding:10px; border-radius:6px; }
+  .atributo { background:#2a2a2a; padding:10px; border-radius:6px; text-align:center; }
   .atributo input { width:60px; text-align:center; font-size:1.2em; }
+  .bonus { display:grid; grid-template-columns: repeat(4,1fr); gap:10px; margin-top:20px; }
+  .bonus div { background:#2a2a2a; padding:10px; border-radius:6px; text-align:center; }
   .pericias, .habilidades, .equipamentos { margin-top:20px; display:grid; grid-template-columns: repeat(2,1fr); gap:10px; }
   .item { background:#2a2a2a; padding:10px; border-radius:6px; display:flex; justify-content:space-between; }
   .botao { margin-top:20px; padding:10px 20px; background:#f4c542; color:#111; border:none; border-radius:6px; cursor:pointer; font-weight:bold; }
@@ -38,7 +40,7 @@
   </div>
   <div class="campo">
     <label>Classe:</label>
-    <input type="text" id="classe" placeholder="">
+    <input type="text" id="classe" placeholder="Ex: Shinigami da 11ª divisão">
   </div>
   <div class="campo">
     <label>Nível:</label>
@@ -47,12 +49,20 @@
 
   <h2>Atributos</h2>
   <div class="atributos">
-    <div class="atributo">FOR<br><input type="number" id="for" value="0" onchange="calcularBonus()"><br>Bônus: <span id="bfor">0</span></div>
-    <div class="atributo">DES<br><input type="number" id="des" value="0" onchange="calcularBonus()"><br>Bônus: <span id="bdes">0</span></div>
-    <div class="atributo">CON<br><input type="number" id="con" value="0" onchange="calcularBonus()"><br>Bônus: <span id="bcon">0</span></div>
-    <div class="atributo">INT<br><input type="number" id="int" value="0" onchange="calcularBonus()"><br>Bônus: <span id="bint">0</span></div>
-    <div class="atributo">SAB<br><input type="number" id="sab" value="0" onchange="calcularBonus()"><br>Bônus: <span id="bsab">0</span></div>
-    <div class="atributo">CAR<br><input type="number" id="car" value="0" onchange="calcularBonus()"><br>Bônus: <span id="bcar">0</span></div>
+    <div class="atributo">FOR<br><input type="number" id="for" value="0"></div>
+    <div class="atributo">DES<br><input type="number" id="des" value="0"></div>
+    <div class="atributo">CON<br><input type="number" id="con" value="0"></div>
+    <div class="atributo">INT<br><input type="number" id="int" value="0"></div>
+    <div class="atributo">SAB<br><input type="number" id="sab" value="0"></div>
+    <div class="atributo">CAR<br><input type="number" id="car" value="0"></div>
+  </div>
+
+  <h2>Bônus Especiais</h2>
+  <div class="bonus">
+    <div>Bônus de Proficiência<br><input type="number" id="prof" value="0"></div>
+    <div>Esquiva<br><input type="number" id="esquiva" value="0"></div>
+    <div>Dureza<br><input type="number" id="dureza" value="0"></div>
+    <div>Percepção Passiva<br><input type="number" id="percepcao" value="0"></div>
   </div>
 
   <h2>Perícias</h2>
@@ -88,14 +98,6 @@ function atualizarCor() {
     case 'Fullbringer': ficha.style.background='#4c3a1a'; break;
     default: ficha.style.background='#1c1c1c';
   }
-}
-
-function calcularBonus() {
-  const atributos = ['for','des','con','int','sab','car'];
-  atributos.forEach(a=>{
-    const val = parseInt(document.getElementById(a).value) || 0;
-    document.getElementById('b'+a).textContent = Math.floor((val-10)/2);
-  });
 }
 
 function adicionarPericia() {
@@ -136,6 +138,12 @@ function salvarFicha() {
       SAB: document.getElementById('sab').value,
       CAR: document.getElementById('car').value
     },
+    bonus: {
+      proficiencia: document.getElementById('prof').value,
+      esquiva: document.getElementById('esquiva').value,
+      dureza: document.getElementById('dureza').value,
+      percepcao: document.getElementById('percepcao').value
+    },
     pericias: Array.from(document.querySelectorAll('#pericias .item')).map(i=>{
       return {nome:i.children[0].value, valor:i.children[1].value};
     }),
@@ -170,9 +178,15 @@ function exportarPDF() {
   const atributos = ['FOR','DES','CON','INT','SAB','CAR'];
   atributos.forEach(a=>{
     const val = document.getElementById(a.toLowerCase()).value;
-    const bonus = document.getElementById('b'+a.toLowerCase()).textContent;
-    doc.text(`${a}: ${val} (Bônus: ${bonus})`, 30, y); y+=7;
+    doc.text(`${a}: ${val}`, 30, y); y+=7;
   });
+
+  y+=5;
+  doc.text("Bônus Especiais:", 20, y); y+=10;
+  doc.text(`Proficiência: ${document.getElementById('prof').value}`, 30, y); y+=7;
+  doc.text(`Esquiva: ${document.getElementById('esquiva').value}`, 30, y); y+=7;
+  doc.text(`Dureza: ${document.getElementById('dureza').value}`, 30, y); y+=7;
+  doc.text(`Percepção Passiva: ${document.getElementById('percepcao').value}`, 30, y); y+=7;
 
   y+=5;
   doc.text("Perícias:", 20, y); y+=10;
@@ -197,4 +211,5 @@ function exportarPDF() {
 </script>
 </body>
 </html>
+
 
