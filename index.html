@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Ficha - Shinigamis & Hollows (modelo)</title>
+  <style>
+    :root{--bg:#0f172a;--card:#0b1220;--accent:#8b5cf6;--muted:#94a3b8;--paper:#f8fafc}
+    body{font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial;line-height:1.35;background:linear-gradient(180deg,#071026 0%,#07172a 60%);color:var(--paper);padding:24px}
+    .wrap{max-width:1100px;margin:0 auto}
+    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+    header h1{font-size:20px;margin:0}
+    .grid{display:grid;grid-template-columns:1fr 360px;gap:16px}
+    .card{background:rgba(255,255,255,0.03);padding:18px;border-radius:12px;box-shadow:0 6px 18px rgba(2,6,23,0.6)}
+    label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+    input[type=text],textarea,select{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:var(--paper)}
+    textarea{min-height:90px}
+    .row{display:flex;gap:8px}
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    .stat{background:rgba(255,255,255,0.02);padding:10px;border-radius:8px;text-align:center}
+    .stat label{margin-bottom:4px}
+    .stat input{font-size:18px;text-align:center}
+    button{background:var(--accent);border:none;padding:10px 12px;border-radius:10px;color:white;cursor:pointer}
+    .muted{color:var(--muted);font-size:13px}
+    .sheet-print{display:none}
+    /* print rules */
+    @media print{
+      body{background:white;color:black}
+      .grid{grid-template-columns:1fr}
+      header, .controls{display:none}
+      .card{background:transparent;box-shadow:none}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Ficha: Shinigamis & Hollows — Modelo de Site</h1>
+      <div class="controls">
+        <button id="saveJson">Salvar JSON</button>
+        <button id="loadJson">Carregar JSON</button>
+        <button id="exportPdf">Exportar (Imprimir/PDF)</button>
+      </div>
+    </header>
+
+    <div class="grid">
+      <main class="card">
+        <section>
+          <label>Nome do Personagem</label>
+          <input id="nome" type="text" placeholder="Ex: Ichigo Kurosaki">
+        </section>
+
+        <section style="margin-top:12px">
+          <div class="row">
+            <div style="flex:1">
+              <label>Classe / Função</label>
+              <input id="classe" type="text" placeholder="Ex: Shinigami">
+            </div>
+            <div style="width:140px">
+              <label>Nível / Rank</label>
+              <input id="nivel" type="text" placeholder="Ex: 1">
+            </div>
+          </div>
+        </section>
+
+        <section style="margin-top:12px">
+          <label>Atributos</label>
+          <div class="stats">
+            <div class="stat"><label class="muted">Força (FOR)</label><input id="for" type="text"></div>
+            <div class="stat"><label class="muted">Destreza (DES)</label><input id="des" type="text"></div>
+            <div class="stat"><label class="muted">Constituição (CON)</label><input id="con" type="text"></div>
+            <div class="stat"><label class="muted">Inteligência (INT)</label><input id="int" type="text"></div>
+            <div class="stat"><label class="muted">Sabedoria (SAB)</label><input id="sab" type="text"></div>
+            <div class="stat"><label class="muted">Carisma (CAR)</label><input id="car" type="text"></div>
+          </div>
+        </section>
+
+        <section style="margin-top:12px">
+          <label>Descrição / Aparência</label>
+          <textarea id="descricao" placeholder="Breve descrição do personagem"></textarea>
+        </section>
+
+        <section style="margin-top:12px">
+          <label>Equipamentos & Itens</label>
+          <textarea id="itens" placeholder="Lista de itens"></textarea>
+        </section>
+
+        <section style="margin-top:12px">
+          <label>Técnicas / Habilidades</label>
+          <textarea id="tecnicas" placeholder="Descreva técnicas, kido, zampakuto, etc."></textarea>
+        </section>
+
+      </main>
+
+      <aside class="card">
+        <h3 style="margin-top:0">Resumo rápido</h3>
+        <p class="muted">Use este painel para ver campos essenciais e exportar.</p>
+
+        <div style="margin-top:10px">
+          <label>HP / SP / Outros</label>
+          <input id="hp" type="text" placeholder="Ex: HP: 30 | SP: 20">
+        </div>
+
+        <div style="margin-top:10px">
+          <label>Perícias</label>
+          <textarea id="pericias" placeholder="Ex: Esgrima +2, Intimidação +1"></textarea>
+        </div>
+
+        <div style="margin-top:14px;display:flex;gap:8px">
+          <button id="downloadBtn">Baixar HTML</button>
+          <button id="clearBtn" style="background:#334155">Limpar</button>
+        </div>
+
+        <p class="muted" style="margin-top:12px;font-size:13px">Salvamentos locais usam JSON. Para hospedar no GitHub Pages, basta colocar este arquivo <code>index.html</code> na raiz do repositório e ativar Pages.</p>
+      </aside>
+    </div>
+
+    <footer style="margin-top:18px;opacity:0.9;color:var(--muted)">Criado automaticamente — personalize o layout e os campos conforme necessário.</footer>
+  </div>
+
+<script>
+  function getData(){
+    return {
+      nome:document.getElementById('nome').value,
+      classe:document.getElementById('classe').value,
+      nivel:document.getElementById('nivel').value,
+      for:document.getElementById('for').value,
+      des:document.getElementById('des').value,
+      con:document.getElementById('con').value,
+      int:document.getElementById('int').value,
+      sab:document.getElementById('sab').value,
+      car:document.getElementById('car').value,
+      descricao:document.getElementById('descricao').value,
+      itens:document.getElementById('itens').value,
+      tecnicas:document.getElementById('tecnicas').value,
+      hp:document.getElementById('hp').value,
+      pericias:document.getElementById('pericias').value
+    }
+  }
+  function setData(d){
+    if(!d) return;
+    document.getElementById('nome').value=d.nome||'';
+    document.getElementById('classe').value=d.classe||'';
+    document.getElementById('nivel').value=d.nivel||'';
+    document.getElementById('for').value=d.for||'';
+    document.getElementById('des').value=d.des||'';
+    document.getElementById('con').value=d.con||'';
+    document.getElementById('int').value=d.int||'';
+    document.getElementById('sab').value=d.sab||'';
+    document.getElementById('car').value=d.car||'';
+    document.getElementById('descricao').value=d.descricao||'';
+    document.getElementById('itens').value=d.itens||'';
+    document.getElementById('tecnicas').value=d.tecnicas||'';
+    document.getElementById('hp').value=d.hp||'';
+    document.getElementById('pericias').value=d.pericias||'';
+  }
+
+  document.getElementById('saveJson').addEventListener('click',()=>{
+    const d=getData();
+    const filename=(d.nome||'ficha')+'.json';
+    const blob=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;a.download=filename;a.click();URL.revokeObjectURL(url);
+  });
+
+  document.getElementById('loadJson').addEventListener('click',()=>{
+    const inp=document.createElement('input');inp.type='file';inp.accept='.json';
+    inp.onchange=()=>{
+      const f=inp.files[0];if(!f) return;const r=new FileReader();
+      r.onload=e=>{try{setData(JSON.parse(e.target.result))}catch(err){alert('JSON inválido')} }
+      r.readAsText(f);
+    }
+    inp.click();
+  });
+
+  document.getElementById('exportPdf').addEventListener('click',()=>{
+    window.print();
+  });
+
+  document.getElementById('clearBtn').addEventListener('click',()=>{
+    if(!confirm('Limpar todos os campos?')) return;setData({});
+  });
+
+  document.getElementById('downloadBtn').addEventListener('click',()=>{
+    const html = '<!doctype html>'+document.documentElement.innerHTML;
+    const blob=new Blob([html],{type:'text/html'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;a.download='ficha-shinigamis-hollows.html';a.click();URL.revokeObjectURL(url);
+  });
+
+  // try load autosave
+  try{const saved=localStorage.getItem('ficha_sh');if(saved) setData(JSON.parse(saved));
+  window.addEventListener('beforeunload',()=>{localStorage.setItem('ficha_sh',JSON.stringify(getData()))})}catch(e){}
+</script>
+</body>
+</html>
