@@ -1,196 +1,200 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Ficha - Shinigamis & Hollows (modelo)</title>
-  <style>
-    :root{--bg:#0f172a;--card:#0b1220;--accent:#8b5cf6;--muted:#94a3b8;--paper:#f8fafc}
-    body{font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial;line-height:1.35;background:linear-gradient(180deg,#071026 0%,#07172a 60%);color:var(--paper);padding:24px}
-    .wrap{max-width:1100px;margin:0 auto}
-    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-    header h1{font-size:20px;margin:0}
-    .grid{display:grid;grid-template-columns:1fr 360px;gap:16px}
-    .card{background:rgba(255,255,255,0.03);padding:18px;border-radius:12px;box-shadow:0 6px 18px rgba(2,6,23,0.6)}
-    label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
-    input[type=text],textarea,select{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:var(--paper)}
-    textarea{min-height:90px}
-    .row{display:flex;gap:8px}
-    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-    .stat{background:rgba(255,255,255,0.02);padding:10px;border-radius:8px;text-align:center}
-    .stat label{margin-bottom:4px}
-    .stat input{font-size:18px;text-align:center}
-    button{background:var(--accent);border:none;padding:10px 12px;border-radius:10px;color:white;cursor:pointer}
-    .muted{color:var(--muted);font-size:13px}
-    .sheet-print{display:none}
-    /* print rules */
-    @media print{
-      body{background:white;color:black}
-      .grid{grid-template-columns:1fr}
-      header, .controls{display:none}
-      .card{background:transparent;box-shadow:none}
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Ficha - Shinigamis & Hollows</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  body { font-family: Arial, sans-serif; background: #111; color: #eee; margin:0; padding:0; text-align:center;}
+  h1 { background: #222; padding: 15px; margin:0; color: #f4c542; }
+  .ficha { max-width: 950px; margin: 20px auto; padding: 20px; border-radius: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.7); }
+  .campo { display:flex; justify-content:space-between; margin:8px 0; padding:10px; border-radius:6px; }
+  label { flex:1; text-align:left; }
+  input, select, textarea { flex:2; padding:6px; border:none; border-radius:4px; background:#333; color:#fff; }
+  .atributos { display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; margin-top:20px; }
+  .atributo { background:#2a2a2a; padding:10px; border-radius:6px; }
+  .atributo input { width:60px; text-align:center; font-size:1.2em; }
+  .pericias, .habilidades, .equipamentos { margin-top:20px; display:grid; grid-template-columns: repeat(2,1fr); gap:10px; }
+  .item { background:#2a2a2a; padding:10px; border-radius:6px; display:flex; justify-content:space-between; }
+  .botao { margin-top:20px; padding:10px 20px; background:#f4c542; color:#111; border:none; border-radius:6px; cursor:pointer; font-weight:bold; }
+  .btn-add { background:#444; color:#fff; border:none; border-radius:4px; padding:4px 8px; cursor:pointer; }
+</style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <h1>Ficha: Shinigamis & Hollows — Modelo de Site</h1>
-      <div class="controls">
-        <button id="saveJson">Salvar JSON</button>
-        <button id="loadJson">Carregar JSON</button>
-        <button id="exportPdf">Exportar (Imprimir/PDF)</button>
-      </div>
-    </header>
-
-    <div class="grid">
-      <main class="card">
-        <section>
-          <label>Nome do Personagem</label>
-          <input id="nome" type="text" placeholder="Ex: Ichigo Kurosaki">
-        </section>
-
-        <section style="margin-top:12px">
-          <div class="row">
-            <div style="flex:1">
-              <label>Classe / Função</label>
-              <input id="classe" type="text" placeholder="Ex: Shinigami">
-            </div>
-            <div style="width:140px">
-              <label>Nível / Rank</label>
-              <input id="nivel" type="text" placeholder="Ex: 1">
-            </div>
-          </div>
-        </section>
-
-        <section style="margin-top:12px">
-          <label>Atributos</label>
-          <div class="stats">
-            <div class="stat"><label class="muted">Força (FOR)</label><input id="for" type="text"></div>
-            <div class="stat"><label class="muted">Destreza (DES)</label><input id="des" type="text"></div>
-            <div class="stat"><label class="muted">Constituição (CON)</label><input id="con" type="text"></div>
-            <div class="stat"><label class="muted">Inteligência (INT)</label><input id="int" type="text"></div>
-            <div class="stat"><label class="muted">Sabedoria (SAB)</label><input id="sab" type="text"></div>
-            <div class="stat"><label class="muted">Carisma (CAR)</label><input id="car" type="text"></div>
-          </div>
-        </section>
-
-        <section style="margin-top:12px">
-          <label>Descrição / Aparência</label>
-          <textarea id="descricao" placeholder="Breve descrição do personagem"></textarea>
-        </section>
-
-        <section style="margin-top:12px">
-          <label>Equipamentos & Itens</label>
-          <textarea id="itens" placeholder="Lista de itens"></textarea>
-        </section>
-
-        <section style="margin-top:12px">
-          <label>Técnicas / Habilidades</label>
-          <textarea id="tecnicas" placeholder="Descreva técnicas, kido, zampakuto, etc."></textarea>
-        </section>
-
-      </main>
-
-      <aside class="card">
-        <h3 style="margin-top:0">Resumo rápido</h3>
-        <p class="muted">Use este painel para ver campos essenciais e exportar.</p>
-
-        <div style="margin-top:10px">
-          <label>HP / SP / Outros</label>
-          <input id="hp" type="text" placeholder="Ex: HP: 30 | SP: 20">
-        </div>
-
-        <div style="margin-top:10px">
-          <label>Perícias</label>
-          <textarea id="pericias" placeholder="Ex: Esgrima +2, Intimidação +1"></textarea>
-        </div>
-
-        <div style="margin-top:14px;display:flex;gap:8px">
-          <button id="downloadBtn">Baixar HTML</button>
-          <button id="clearBtn" style="background:#334155">Limpar</button>
-        </div>
-
-        <p class="muted" style="margin-top:12px;font-size:13px">Salvamentos locais usam JSON. Para hospedar no GitHub Pages, basta colocar este arquivo <code>index.html</code> na raiz do repositório e ativar Pages.</p>
-      </aside>
-    </div>
-
-    <footer style="margin-top:18px;opacity:0.9;color:var(--muted)">Criado automaticamente — personalize o layout e os campos conforme necessário.</footer>
+<h1>Ficha de Personagem Avançada</h1>
+<div class="ficha" id="ficha">
+  <div class="campo">
+    <label>Nome:</label>
+    <input type="text" id="nome" placeholder="Digite o nome">
+  </div>
+  <div class="campo">
+    <label>Raça:</label>
+    <select id="raca" onchange="atualizarCor()">
+      <option value="Shinigami">Shinigami</option>
+      <option value="Hollow">Hollow</option>
+      <option value="Quincy">Quincy</option>
+      <option value="Fullbringer">Fullbringer</option>
+    </select>
+  </div>
+  <div class="campo">
+    <label>Classe:</label>
+    <input type="text" id="classe" placeholder="">
+  </div>
+  <div class="campo">
+    <label>Nível:</label>
+    <input type="number" id="nivel" min="1" value="1">
   </div>
 
+  <h2>Atributos</h2>
+  <div class="atributos">
+    <div class="atributo">FOR<br><input type="number" id="for" value="0" onchange="calcularBonus()"><br>Bônus: <span id="bfor">0</span></div>
+    <div class="atributo">DES<br><input type="number" id="des" value="0" onchange="calcularBonus()"><br>Bônus: <span id="bdes">0</span></div>
+    <div class="atributo">CON<br><input type="number" id="con" value="0" onchange="calcularBonus()"><br>Bônus: <span id="bcon">0</span></div>
+    <div class="atributo">INT<br><input type="number" id="int" value="0" onchange="calcularBonus()"><br>Bônus: <span id="bint">0</span></div>
+    <div class="atributo">SAB<br><input type="number" id="sab" value="0" onchange="calcularBonus()"><br>Bônus: <span id="bsab">0</span></div>
+    <div class="atributo">CAR<br><input type="number" id="car" value="0" onchange="calcularBonus()"><br>Bônus: <span id="bcar">0</span></div>
+  </div>
+
+  <h2>Perícias</h2>
+  <div class="pericias" id="pericias">
+    <div class="item"><input type="text" placeholder="Nome da perícia"><input type="number" value="0"></div>
+  </div>
+  <button class="btn-add" onclick="adicionarPericia()">+ Perícia</button>
+
+  <h2>Habilidades</h2>
+  <div class="habilidades" id="habilidades">
+    <div class="item"><input type="text" placeholder="Habilidade"><input type="text" placeholder="Descrição"></div>
+  </div>
+  <button class="btn-add" onclick="adicionarHabilidade()">+ Habilidade</button>
+
+  <h2>Equipamentos</h2>
+  <div class="equipamentos" id="equipamentos">
+    <div class="item"><input type="text" placeholder="Equipamento"><input type="text" placeholder="Descrição"></div>
+  </div>
+  <button class="btn-add" onclick="adicionarEquipamento()">+ Equipamento</button>
+
+  <button class="botao" onclick="salvarFicha()">Salvar Ficha</button>
+  <button class="botao" onclick="exportarPDF()">Exportar PDF</button>
+</div>
+
 <script>
-  function getData(){
-    return {
-      nome:document.getElementById('nome').value,
-      classe:document.getElementById('classe').value,
-      nivel:document.getElementById('nivel').value,
-      for:document.getElementById('for').value,
-      des:document.getElementById('des').value,
-      con:document.getElementById('con').value,
-      int:document.getElementById('int').value,
-      sab:document.getElementById('sab').value,
-      car:document.getElementById('car').value,
-      descricao:document.getElementById('descricao').value,
-      itens:document.getElementById('itens').value,
-      tecnicas:document.getElementById('tecnicas').value,
-      hp:document.getElementById('hp').value,
-      pericias:document.getElementById('pericias').value
-    }
+function atualizarCor() {
+  const ficha = document.getElementById('ficha');
+  const raca = document.getElementById('raca').value;
+  switch(raca) {
+    case 'Shinigami': ficha.style.background='#1a2b4c'; break;
+    case 'Hollow': ficha.style.background='#4b1a4c'; break;
+    case 'Quincy': ficha.style.background='#1a4c2b'; break;
+    case 'Fullbringer': ficha.style.background='#4c3a1a'; break;
+    default: ficha.style.background='#1c1c1c';
   }
-  function setData(d){
-    if(!d) return;
-    document.getElementById('nome').value=d.nome||'';
-    document.getElementById('classe').value=d.classe||'';
-    document.getElementById('nivel').value=d.nivel||'';
-    document.getElementById('for').value=d.for||'';
-    document.getElementById('des').value=d.des||'';
-    document.getElementById('con').value=d.con||'';
-    document.getElementById('int').value=d.int||'';
-    document.getElementById('sab').value=d.sab||'';
-    document.getElementById('car').value=d.car||'';
-    document.getElementById('descricao').value=d.descricao||'';
-    document.getElementById('itens').value=d.itens||'';
-    document.getElementById('tecnicas').value=d.tecnicas||'';
-    document.getElementById('hp').value=d.hp||'';
-    document.getElementById('pericias').value=d.pericias||'';
-  }
+}
 
-  document.getElementById('saveJson').addEventListener('click',()=>{
-    const d=getData();
-    const filename=(d.nome||'ficha')+'.json';
-    const blob=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');a.href=url;a.download=filename;a.click();URL.revokeObjectURL(url);
+function calcularBonus() {
+  const atributos = ['for','des','con','int','sab','car'];
+  atributos.forEach(a=>{
+    const val = parseInt(document.getElementById(a).value) || 0;
+    document.getElementById('b'+a).textContent = Math.floor((val-10)/2);
+  });
+}
+
+function adicionarPericia() {
+  const pericias = document.getElementById('pericias');
+  const div = document.createElement('div');
+  div.className='item';
+  div.innerHTML='<input type="text" placeholder="Nome da perícia"><input type="number" value="0">';
+  pericias.appendChild(div);
+}
+
+function adicionarHabilidade() {
+  const hab = document.getElementById('habilidades');
+  const div = document.createElement('div');
+  div.className='item';
+  div.innerHTML='<input type="text" placeholder="Habilidade"><input type="text" placeholder="Descrição">';
+  hab.appendChild(div);
+}
+
+function adicionarEquipamento() {
+  const eq = document.getElementById('equipamentos');
+  const div = document.createElement('div');
+  div.className='item';
+  div.innerHTML='<input type="text" placeholder="Equipamento"><input type="text" placeholder="Descrição">';
+  eq.appendChild(div);
+}
+
+function salvarFicha() {
+  const fichaData = {
+    nome: document.getElementById('nome').value,
+    raca: document.getElementById('raca').value,
+    classe: document.getElementById('classe').value,
+    nivel: document.getElementById('nivel').value,
+    atributos: {
+      FOR: document.getElementById('for').value,
+      DES: document.getElementById('des').value,
+      CON: document.getElementById('con').value,
+      INT: document.getElementById('int').value,
+      SAB: document.getElementById('sab').value,
+      CAR: document.getElementById('car').value
+    },
+    pericias: Array.from(document.querySelectorAll('#pericias .item')).map(i=>{
+      return {nome:i.children[0].value, valor:i.children[1].value};
+    }),
+    habilidades: Array.from(document.querySelectorAll('#habilidades .item')).map(i=>{
+      return {nome:i.children[0].value, descricao:i.children[1].value};
+    }),
+    equipamentos: Array.from(document.querySelectorAll('#equipamentos .item')).map(i=>{
+      return {nome:i.children[0].value, descricao:i.children[1].value};
+    })
+  };
+  localStorage.setItem('fichaPersonagem', JSON.stringify(fichaData));
+  alert('Ficha salva com sucesso!');
+}
+
+function exportarPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  doc.setFontSize(16);
+  doc.text("Ficha de Personagem", 105, 15, {align:"center"});
+  const nome = document.getElementById('nome').value;
+  const raca = document.getElementById('raca').value;
+  const classe = document.getElementById('classe').value;
+  const nivel = document.getElementById('nivel').value;
+  doc.setFontSize(12);
+  doc.text(`Nome: ${nome}`, 20, 30);
+  doc.text(`Raça: ${raca}`, 20, 40);
+  doc.text(`Classe: ${classe}`, 20, 50);
+  doc.text(`Nível: ${nivel}`, 20, 60);
+
+  let y = 70;
+  doc.text("Atributos:", 20, y); y+=10;
+  const atributos = ['FOR','DES','CON','INT','SAB','CAR'];
+  atributos.forEach(a=>{
+    const val = document.getElementById(a.toLowerCase()).value;
+    const bonus = document.getElementById('b'+a.toLowerCase()).textContent;
+    doc.text(`${a}: ${val} (Bônus: ${bonus})`, 30, y); y+=7;
   });
 
-  document.getElementById('loadJson').addEventListener('click',()=>{
-    const inp=document.createElement('input');inp.type='file';inp.accept='.json';
-    inp.onchange=()=>{
-      const f=inp.files[0];if(!f) return;const r=new FileReader();
-      r.onload=e=>{try{setData(JSON.parse(e.target.result))}catch(err){alert('JSON inválido')} }
-      r.readAsText(f);
-    }
-    inp.click();
+  y+=5;
+  doc.text("Perícias:", 20, y); y+=10;
+  document.querySelectorAll('#pericias .item').forEach(p=>{
+    doc.text(`${p.children[0].value}: ${p.children[1].value}`, 30, y); y+=7;
   });
 
-  document.getElementById('exportPdf').addEventListener('click',()=>{
-    window.print();
+  y+=5;
+  doc.text("Habilidades:", 20, y); y+=10;
+  document.querySelectorAll('#habilidades .item').forEach(h=>{
+    doc.text(`${h.children[0].value}: ${h.children[1].value}`, 30, y); y+=7;
   });
 
-  document.getElementById('clearBtn').addEventListener('click',()=>{
-    if(!confirm('Limpar todos os campos?')) return;setData({});
+  y+=5;
+  doc.text("Equipamentos:", 20, y); y+=10;
+  document.querySelectorAll('#equipamentos .item').forEach(eq=>{
+    doc.text(`${eq.children[0].value}: ${eq.children[1].value}`, 30, y); y+=7;
   });
 
-  document.getElementById('downloadBtn').addEventListener('click',()=>{
-    const html = '<!doctype html>'+document.documentElement.innerHTML;
-    const blob=new Blob([html],{type:'text/html'});
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');a.href=url;a.download='ficha-shinigamis-hollows.html';a.click();URL.revokeObjectURL(url);
-  });
-
-  // try load autosave
-  try{const saved=localStorage.getItem('ficha_sh');if(saved) setData(JSON.parse(saved));
-  window.addEventListener('beforeunload',()=>{localStorage.setItem('ficha_sh',JSON.stringify(getData()))})}catch(e){}
+  doc.save(`${nome || 'Ficha'}.pdf`);
+}
 </script>
 </body>
 </html>
+
